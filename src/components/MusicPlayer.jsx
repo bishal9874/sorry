@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import song from '../assets/song.mp3'
 
 const START_AT = 60 // seconds — song begins from the 1:00 mark
-const GESTURE_EVENTS = ['pointerdown', 'keydown', 'touchstart']
+const GESTURE_EVENTS = ['pointerdown', 'touchstart', 'touchend', 'keydown', 'click']
 
 export default function MusicPlayer() {
   const audioRef = useRef(null)
+  const hasSeekedRef = useRef(false)
   const removeGestureListenersRef = useRef(null)
   const [playing, setPlaying] = useState(false)
 
@@ -14,39 +15,58 @@ export default function MusicPlayer() {
     if (!audio) return
     audio.volume = 0.55
 
-    const onPlay = () => setPlaying(true)
+    // Safe on every browser: some mobile engines throw if metadata isn't
+    // loaded yet, so this never runs unguarded anywhere in this file.
+    function seekToStartOnce() {
+      if (hasSeekedRef.current) return
+      if (audio.readyState < 1) {
+        audio.addEventListener(
+          'loadedmetadata',
+          () => {
+            try {
+              audio.currentTime = START_AT
+            } catch {
+              // ignore — playback still starts from wherever it can
+            }
+            hasSeekedRef.current = true
+          },
+          { once: true },
+        )
+        return
+      }
+      try {
+        audio.currentTime = START_AT
+      } catch {
+        // ignore
+      }
+      hasSeekedRef.current = true
+    }
+
+    function attemptPlay() {
+      seekToStartOnce()
+      audio.play().catch(() => {})
+    }
+
+    const onPlay = () => {
+      setPlaying(true)
+      // Playback is confirmed — the page-wide "tap anywhere" listeners have
+      // done their job and can stop listening.
+      if (removeGestureListenersRef.current) removeGestureListenersRef.current()
+    }
     const onPause = () => setPlaying(false)
     audio.addEventListener('play', onPlay)
     audio.addEventListener('pause', onPause)
 
-    function seekToStart() {
-      if (audio.currentTime < START_AT) {
-        try {
-          audio.currentTime = START_AT
-        } catch {
-          // metadata not ready yet — the loadedmetadata handler below retries
-        }
-      }
-    }
-
-    if (audio.readyState >= 1) {
-      seekToStart()
-    } else {
-      audio.addEventListener('loadedmetadata', seekToStart, { once: true })
-    }
-
-    // Browsers block audio with sound until the page has real user
-    // activation. Try to start the moment the page opens (works once the
-    // visitor has engaged with this site before); if that's rejected, start
-    // on the very first tap/click/key anywhere on the page — no need to
-    // find and press the music button specifically.
-    audio.play().catch(() => {})
+    // Try immediately on load (works once a browser trusts this site from a
+    // prior visit). Most first-time mobile visits will reject this — that's
+    // expected — so we also retry on every tap/touch/key anywhere on the
+    // page (except the toggle button, which manages its own tap) until
+    // playback actually starts, not just once.
+    attemptPlay()
 
     function startOnFirstGesture(event) {
       if (event.target.closest('.music-toggle')) return
-      seekToStart()
-      audio.play().catch(() => {})
-      cleanupGestureListeners()
+      attemptPlay()
     }
 
     function cleanupGestureListeners() {
@@ -57,14 +77,13 @@ export default function MusicPlayer() {
     }
 
     GESTURE_EVENTS.forEach((type) =>
-      window.addEventListener(type, startOnFirstGesture, { once: false }),
+      window.addEventListener(type, startOnFirstGesture, { passive: true }),
     )
     removeGestureListenersRef.current = cleanupGestureListeners
 
     return () => {
       audio.removeEventListener('play', onPlay)
       audio.removeEventListener('pause', onPause)
-      audio.removeEventListener('loadedmetadata', seekToStart)
       cleanupGestureListeners()
     }
   }, [])
@@ -72,13 +91,16 @@ export default function MusicPlayer() {
   function toggle() {
     const audio = audioRef.current
     if (!audio) return
-    // Once the visitor has used the button directly, stop the page-wide
-    // "first gesture starts music" listeners so they can't fight a manual pause.
     if (removeGestureListenersRef.current) removeGestureListenersRef.current()
 
     if (audio.paused) {
-      if (audio.currentTime < START_AT && audio.currentTime === 0) {
-        audio.currentTime = START_AT
+      if (!hasSeekedRef.current) {
+        try {
+          audio.currentTime = START_AT
+        } catch {
+          // ignore — play() below still runs regardless
+        }
+        hasSeekedRef.current = true
       }
       audio.play().catch(() => {})
     } else {
@@ -88,7 +110,7 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src={song} loop preload="auto" />
+      <audio ref={audioRef} src={song} loop preload="auto" playsInline />
       {!playing && (
         <p className="music-hint" aria-hidden="true">
           tap anywhere for our song 🎵
