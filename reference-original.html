@@ -1,0 +1,474 @@
+<title>Petals &amp; Apologies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #fbeeea;
+    --surface: #fff8f4;
+    --surface-edge: #f0d9cf;
+    --ink: #4a2a28;
+    --ink-soft: #8a6660;
+    --accent: #b3405a;
+    --accent-strong: #8f2f47;
+    --petal: #e8aab3;
+    --sage: #7c8c5f;
+    --gold: #c99a4e;
+    --shadow: rgba(74,42,40,0.16);
+    --tape: #f6d9c4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #241318;
+      --surface: #2f1b21;
+      --surface-edge: #4a2a33;
+      --ink: #f3e3da;
+      --ink-soft: #c8a79c;
+      --accent: #e18098;
+      --accent-strong: #f0a2b3;
+      --petal: #b56575;
+      --sage: #9db07e;
+      --gold: #dcb35e;
+      --shadow: rgba(0,0,0,0.45);
+      --tape: #46282f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #241318;
+    --surface: #2f1b21;
+    --surface-edge: #4a2a33;
+    --ink: #f3e3da;
+    --ink-soft: #c8a79c;
+    --accent: #e18098;
+    --accent-strong: #f0a2b3;
+    --petal: #b56575;
+    --sage: #9db07e;
+    --gold: #dcb35e;
+    --shadow: rgba(0,0,0,0.45);
+    --tape: #46282f;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: radial-gradient(ellipse 90% 60% at 50% -10%, color-mix(in srgb, var(--petal) 22%, var(--bg)) 0%, var(--bg) 55%);
+    color: var(--ink);
+    font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1,h2{ text-wrap: balance; margin: 0; }
+  .script{ font-family: "Caveat", "Segoe Script", cursive; }
+  .label{
+    font-family: "Jost", "Segoe UI", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  /* ambient drifting petals */
+  .petal-field{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .petal-field svg{
+    position: absolute;
+    top: -8%;
+    animation: drift linear infinite;
+    opacity: 0.55;
+  }
+  @keyframes drift{
+    from{ transform: translateY(-10vh) translateX(0) rotate(0deg); }
+    to{ transform: translateY(112vh) translateX(var(--drift-x, 40px)) rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .petal-field svg{ animation-duration: 60s !important; opacity: 0.25; }
+  }
+
+  main{
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4.5rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.4rem;
+  }
+
+  /* ---- hero / envelope ---- */
+  .hero{ text-align: center; }
+  .hero .label{ margin-bottom: 0.6rem; }
+  .hero h1{
+    font-size: clamp(2.6rem, 9vw, 3.6rem);
+    font-weight: 700;
+    color: var(--accent-strong);
+    line-height: 1;
+  }
+  .hero p{
+    margin: 0.9rem auto 0;
+    max-width: 34ch;
+    color: var(--ink-soft);
+    font-size: 1.15rem;
+    font-style: italic;
+  }
+
+  .envelope-wrap{
+    margin: 2.2rem auto 0;
+    width: 220px;
+    animation: sway 6s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  @keyframes sway{
+    0%,100%{ transform: rotate(-2deg); }
+    50%{ transform: rotate(2deg); }
+  }
+  @media (prefers-reduced-motion: reduce){ .envelope-wrap{ animation: none; } }
+  .envelope-wrap svg{ width: 100%; height: auto; display:block; filter: drop-shadow(0 14px 22px var(--shadow)); cursor: pointer; }
+  .seal{ transform-origin: center; animation: breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe{ 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.08);} }
+  @media (prefers-reduced-motion: reduce){ .seal{ animation: none; } }
+
+  /* ---- letter card ---- */
+  .letter{
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 4px;
+    padding: 2.6rem 2.2rem 2.4rem;
+    box-shadow: 0 18px 40px -14px var(--shadow), 0 2px 8px var(--shadow);
+    transform: rotate(-0.6deg);
+  }
+  .tape{
+    position: absolute;
+    width: 84px; height: 30px;
+    background: var(--tape);
+    opacity: 0.85;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .tape.left{ top: -14px; left: 24px; transform: rotate(-8deg); }
+  .tape.right{ top: -12px; right: 20px; transform: rotate(6deg); }
+
+  .corner-sprig{ position:absolute; width:52px; height:52px; opacity:0.85; }
+  .corner-sprig.tl{ top: 10px; left: 10px; }
+  .corner-sprig.br{ bottom: 10px; right: 10px; transform: rotate(180deg); }
+
+  .letter p{
+    font-size: 1.22rem;
+    line-height: 1.65;
+    margin: 0 0 1.05rem;
+  }
+  .letter p:last-of-type{ margin-bottom: 0; }
+  .letter .opener{ font-size: 1.4rem; }
+  .signature{
+    margin-top: 1.6rem;
+    text-align: right;
+    font-size: 1.9rem;
+    color: var(--accent-strong);
+  }
+
+  /* ---- reasons / promise tags ---- */
+  .promises{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.1rem 0.9rem;
+    padding: 0 0.5rem;
+  }
+  .promise-tag{
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 3px;
+    padding: 0.95rem 1.15rem 0.95rem 1rem;
+    max-width: 210px;
+    box-shadow: 0 10px 22px -12px var(--shadow);
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+    font-size: 1.02rem;
+    line-height: 1.4;
+  }
+  .promise-tag svg{ flex: none; width: 20px; height: 20px; margin-top: 3px; }
+  .promise-tag:nth-child(1){ transform: rotate(-3deg); }
+  .promise-tag:nth-child(2){ transform: rotate(2deg); margin-top: 0.6rem; }
+  .promise-tag:nth-child(3){ transform: rotate(-1.5deg); }
+  .promise-tag:nth-child(4){ transform: rotate(2.5deg); margin-top: 0.4rem; }
+
+  /* ---- forgive section ---- */
+  .ask{ text-align: center; }
+  .ask h2{
+    font-family: "Caveat", cursive;
+    font-size: clamp(2rem, 7vw, 2.6rem);
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .ask-buttons{
+    position: relative;
+    margin-top: 1.6rem;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  button{ font-family: "Jost", sans-serif; cursor: pointer; }
+  .btn-yes{
+    background: var(--accent);
+    color: #fff8f4;
+    border: none;
+    border-radius: 999px;
+    padding: 0.95rem 1.9rem;
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 12px 24px -10px var(--shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .btn-yes:hover{ transform: translateY(-2px) scale(1.03); box-shadow: 0 16px 28px -10px var(--shadow); }
+  .btn-yes:focus-visible, .btn-no:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+  .btn-no{
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--surface-edge);
+    border-radius: 999px;
+    padding: 0.95rem 1.6rem;
+    font-size: 0.98rem;
+    position: relative;
+    transition: transform 0.15s ease;
+  }
+  .hint{
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-family: "Jost", sans-serif;
+    min-height: 1.2em;
+  }
+
+  .thanks{
+    display: none;
+    text-align: center;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+  .thanks.show{ display: flex; animation: pop-in 0.5s ease; }
+  @keyframes pop-in{ from{ opacity: 0; transform: translateY(10px) scale(0.97);} to{ opacity:1; transform: translateY(0) scale(1);} }
+  .thanks svg{ width: 150px; height: auto; }
+  .thanks .script{ font-size: 2rem; color: var(--accent-strong); }
+  .bear-arm{ transform-origin: 62% 55%; animation: wave 1.6s ease-in-out infinite; }
+  @keyframes wave{ 0%,100%{ transform: rotate(0deg);} 50%{ transform: rotate(-18deg);} }
+  @media (prefers-reduced-motion: reduce){ .bear-arm{ animation: none; } }
+  .heart-pulse{ transform-origin: center; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.14);} }
+
+  footer{
+    text-align: center;
+    color: var(--ink-soft);
+    font-family: "Jost", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .confetti-piece{
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 5;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{
+    from{ transform: translate(0,0) rotate(0deg); opacity: 1; }
+    to{ transform: translate(var(--fx), 90vh) rotate(var(--fr)); opacity: 0; }
+  }
+</style>
+
+<div class="petal-field" id="petalField" aria-hidden="true"></div>
+
+<main>
+  <section class="hero">
+    <p class="label">a little letter for</p>
+    <h1 class="script">my love</h1>
+    <p>I made a mess of things. Here's me, trying to clean it up &mdash; one honest word at a time.</p>
+
+    <div class="envelope-wrap" id="envelope" role="img" aria-label="An envelope with a wax seal, gently swaying">
+      <svg viewBox="0 0 220 150" fill="none">
+        <path d="M8 30 L212 30 L212 138 Q212 142 208 142 L12 142 Q8 142 8 138 Z" fill="var(--surface)" stroke="var(--surface-edge)" stroke-width="2"/>
+        <path d="M8 30 L110 96 L212 30" fill="none" stroke="var(--surface-edge)" stroke-width="2"/>
+        <path d="M8 30 L212 30 L110 4 Z" fill="var(--petal)" opacity="0.9"/>
+        <g class="seal">
+          <circle cx="110" cy="34" r="17" fill="var(--gold)"/>
+          <path d="M110 26 C106 26 103 29 103 32.5 C103 37 110 42 110 42 C110 42 117 37 117 32.5 C117 29 114 26 110 26 Z" fill="var(--surface)"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="letter">
+    <div class="tape left"></div>
+    <div class="tape right"></div>
+    <svg class="corner-sprig tl" viewBox="0 0 52 52" fill="none"><path d="M4 48 C10 30 20 20 30 8" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/><ellipse cx="14" cy="38" rx="7" ry="3.5" fill="var(--sage)" transform="rotate(-30 14 38)"/><ellipse cx="22" cy="24" rx="7" ry="3.5" fill="var(--sage)" transform="rotate(-45 22 24)"/><ellipse cx="30" cy="10" rx="5" ry="3" fill="var(--petal)" transform="rotate(-40 30 10)"/></svg>
+    <svg class="corner-sprig br" viewBox="0 0 52 52" fill="none"><path d="M4 48 C10 30 20 20 30 8" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/><ellipse cx="14" cy="38" rx="7" ry="3.5" fill="var(--sage)" transform="rotate(-30 14 38)"/><ellipse cx="22" cy="24" rx="7" ry="3.5" fill="var(--sage)" transform="rotate(-45 22 24)"/><ellipse cx="30" cy="10" rx="5" ry="3" fill="var(--petal)" transform="rotate(-40 30 10)"/></svg>
+
+    <p class="opener">My Love,</p>
+    <p>I keep replaying it &mdash; the way I acted, the words I chose, the moment I could have just stopped and listened instead. I didn't. And I'm sorry.</p>
+    <p>You deserve someone who's patient with you even when things are messy, someone who notices when you've gone quiet and asks why instead of assuming it's fine. I want to be that person, and today I wasn't.</p>
+    <p>I'm not writing this expecting to be forgiven right away &mdash; I know that's not how it works. I just wanted you to know that I see it, I own it, and I'm going to do better. Not because I'm afraid of losing you, but because you're the person I want to keep choosing, carefully, every day.</p>
+    <p>Take your time. I'll be here.</p>
+    <p class="signature script">&mdash; always yours</p>
+  </section>
+
+  <section class="promises">
+    <div class="promise-tag">
+      <svg viewBox="0 0 20 20"><path d="M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z" fill="var(--sage)"/></svg>
+      I'll listen first, and talk second.
+    </div>
+    <div class="promise-tag">
+      <svg viewBox="0 0 20 20"><path d="M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z" fill="var(--sage)"/></svg>
+      I'll say it before it turns into a fight.
+    </div>
+    <div class="promise-tag">
+      <svg viewBox="0 0 20 20"><path d="M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z" fill="var(--sage)"/></svg>
+      I'll choose "us" over being right.
+    </div>
+    <div class="promise-tag">
+      <svg viewBox="0 0 20 20"><path d="M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z" fill="var(--sage)"/></svg>
+      I'll never make you feel small again.
+    </div>
+  </section>
+
+  <section class="ask" id="askSection">
+    <h2>So... where do we stand?</h2>
+    <div class="ask-buttons">
+      <button class="btn-yes" id="btnYes">I forgive you</button>
+      <button class="btn-no" id="btnNo">Give me a minute</button>
+    </div>
+    <p class="hint" id="hint">&nbsp;</p>
+
+    <div class="thanks" id="thanks">
+      <svg viewBox="0 0 160 150" fill="none">
+        <circle cx="80" cy="78" r="46" fill="#c98a5e"/>
+        <circle cx="46" cy="42" r="15" fill="#c98a5e"/>
+        <circle cx="114" cy="42" r="15" fill="#c98a5e"/>
+        <circle cx="46" cy="42" r="7" fill="#e6b48c"/>
+        <circle cx="114" cy="42" r="7" fill="#e6b48c"/>
+        <ellipse cx="80" cy="92" rx="26" ry="20" fill="#e6b48c"/>
+        <circle cx="62" cy="72" r="4.2" fill="#3a241a"/>
+        <circle cx="98" cy="72" r="4.2" fill="#3a241a"/>
+        <ellipse cx="52" cy="86" rx="7" ry="4.5" fill="var(--petal)" opacity="0.8"/>
+        <ellipse cx="108" cy="86" rx="7" ry="4.5" fill="var(--petal)" opacity="0.8"/>
+        <path d="M74 96 Q80 102 86 96" stroke="#3a241a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <g class="bear-arm">
+          <ellipse cx="122" cy="86" rx="10" ry="16" fill="#c98a5e"/>
+        </g>
+        <g class="heart-pulse">
+          <path d="M100 108 C96 104 89 106 89 112 C89 118 100 126 100 126 C100 126 111 118 111 112 C111 106 104 104 100 108 Z" fill="var(--accent)"/>
+        </g>
+      </svg>
+      <p class="script">Thank you for hearing me out.<br>I love you &mdash; properly, messily, always.</p>
+    </div>
+  </section>
+
+  <footer>made with a very sorry heart</footer>
+</main>
+
+<script>
+  // ambient background petals
+  (function(){
+    var field = document.getElementById('petalField');
+    var count = window.matchMedia('(max-width: 640px)').matches ? 9 : 14;
+    var colors = ['var(--petal)', 'var(--sage)', 'var(--gold)'];
+    for (var i = 0; i < count; i++) {
+      var svgNS = 'http://www.w3.org/2000/svg';
+      var svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      var size = 10 + Math.random() * 12;
+      svg.setAttribute('width', size);
+      svg.setAttribute('height', size);
+      var path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', 'M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z');
+      path.setAttribute('fill', colors[i % colors.length]);
+      svg.appendChild(path);
+      svg.style.left = (Math.random() * 100) + '%';
+      svg.style.animationDuration = (16 + Math.random() * 14) + 's';
+      svg.style.animationDelay = (Math.random() * -20) + 's';
+      svg.style.setProperty('--drift-x', (Math.random() * 80 - 40) + 'px');
+      field.appendChild(svg);
+    }
+  })();
+
+  // envelope click -> little seal pop
+  document.getElementById('envelope').addEventListener('click', function(){
+    var seal = this.querySelector('.seal');
+    seal.style.animation = 'none';
+    seal.offsetHeight;
+    seal.style.animation = 'breathe 0.5s ease-in-out 2';
+  });
+
+  // dodging "no" button
+  (function(){
+    var btnNo = document.getElementById('btnNo');
+    var wrap = document.querySelector('.ask-buttons');
+    var hint = document.getElementById('hint');
+    var dodges = 0;
+    var maxDodges = 4;
+    var messages = [
+      "wait, come back-",
+      "okay, okay...",
+      "just a little more time?",
+      "...fine, you caught me."
+    ];
+    function dodge(){
+      if (dodges >= maxDodges) return;
+      var rect = wrap.getBoundingClientRect();
+      var btnRect = btnNo.getBoundingClientRect();
+      var maxX = rect.width - btnRect.width;
+      var x = Math.random() * maxX - (btnRect.left - rect.left);
+      var y = (Math.random() * 40) - 20;
+      btnNo.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      hint.textContent = messages[dodges];
+      dodges++;
+    }
+    btnNo.addEventListener('pointerenter', function(e){
+      if (e.pointerType === 'mouse') dodge();
+    });
+    btnNo.addEventListener('click', function(){
+      if (dodges < maxDodges) { dodge(); return; }
+      hint.textContent = "take all the time you need, love.";
+    });
+  })();
+
+  // yes -> celebrate
+  document.getElementById('btnYes').addEventListener('click', function(){
+    document.getElementById('askSection').querySelector('h2').textContent = 'thank you.';
+    document.querySelector('.ask-buttons').style.display = 'none';
+    document.getElementById('hint').textContent = '';
+    document.getElementById('thanks').classList.add('show');
+
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+    var colors = ['#b3405a', '#e8aab3', '#c99a4e', '#7c8c5f'];
+    for (var i = 0; i < 26; i++) {
+      (function(){
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        var isHeart = Math.random() > 0.5;
+        piece.innerHTML = isHeart
+          ? '<svg width="14" height="14" viewBox="0 0 20 20"><path d="M10 4 C7 1 2 3 2 8 C2 13 10 18 10 18 C10 18 18 13 18 8 C18 3 13 1 10 4 Z" fill="' + colors[i % colors.length] + '"/></svg>'
+          : '<svg width="12" height="12" viewBox="0 0 20 20"><path d="M10 2 C5 6 3 9 3 12 a7 7 0 0 0 14 0 C17 9 15 6 10 2 Z" fill="' + colors[i % colors.length] + '"/></svg>';
+        var startX = Math.random() * window.innerWidth;
+        piece.style.left = startX + 'px';
+        piece.style.setProperty('--fx', (Math.random() * 160 - 80) + 'px');
+        piece.style.setProperty('--fr', (Math.random() * 480 - 240) + 'deg');
+        piece.style.animationDuration = (2.4 + Math.random() * 1.6) + 's';
+        document.body.appendChild(piece);
+        piece.addEventListener('animationend', function(){ piece.remove(); });
+      })();
+    }
+  });
+</script>

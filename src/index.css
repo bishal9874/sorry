@@ -1,0 +1,36 @@
+:root {
+  --bg: #fff8fa;
+  --surface: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-edge: #ffe1ea;
+  --ink: #3d2244;
+  --ink-soft: #9a7da6;
+  --pink: #ffb8cf;
+  --pink-strong: #ff6b9d;
+  --pink-glow: rgba(255, 107, 157, 0.25);
+  --green: #a3e6b0;
+  --green-strong: #4ec76a;
+  --green-glow: rgba(78, 199, 106, 0.2);
+  --blue: #a9ddf7;
+  --blue-strong: #4db8e8;
+  --blue-glow: rgba(77, 184, 232, 0.2);
+  --gold: #ffd66b;
+  --shadow: rgba(150, 90, 130, 0.12);
+  --shadow-strong: rgba(150, 90, 130, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
