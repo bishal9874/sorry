@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import profilePhoto from '../assets/profile.jpeg'
 
 const PHOTO_EMOJIS = ['💗', '✨', '🌸', '🥺', '💕', '🩵']
 
@@ -17,7 +18,7 @@ export default function HerPhoto() {
         <div className="photo-circle">
           {!imgError ? (
             <img
-              src="/src/assets/profile.jpeg"
+              src={profilePhoto}
               alt="Us together 💗"
               onError={() => setImgError(true)}
             />
